@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Pac‑Man Saint‑Valentin - Rayan & Yasmine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Polices romantiques -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Great Vibes (titres) + Poppins (texte) -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ÉCRAN D’ACCUEIL (fond noir) -->
+    <div id="introOverlay" class="intro-overlay">
+        <div class="intro-content">
+            <div class="intro-title">Voudrais-tu être ma valentine ?<br><span class="intro-sub">(Yasmine clique pour entrez)</span>
+            </div>
+            <div class="intro-hearts" aria-hidden="true"></div>
+        </div>
+    </div>
+
+    <!-- Musiques -->
+    <!-- Musique de fond : nobodynew (se lancera au clic pour respecter l’autoplay) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="ssstik.io_1770409340814.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Musique OUI : Loving Machine (mets le fichier que tu veux, même nom conseillé) -->
+    <audio id="yes-music" preload="auto">
+        <source src="Loving Machine.mp3" type="audio/mpeg" />
+    </audio>
+
+    <div class="container">
+        <h1 class="brand-script">Est‑ce que tu veux être ma Valentine (il n'y a que le oui comme réponse)?</h1>
+        <p class="controls">
+          
+        </p>
+
+        <canvas id="gameCanvas" width="500" height="400"></canvas>
+
+        <button id="audioToggle" class="audio-toggle">Activer musique</button>
+    </div>
+
+    <!-- SCREAMER (choix NON) : vidéo uniquement -->
+    <div id="screamerScreen" class="special-screen hidden">
+        <video id="screamerVideo" class="screamer-video" src="0216.mp4" playsinline preload="auto"
+            disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback">
+        </video>
+
+        <button id="restartBtn" class="btn-restart" style="display:none;">Recommencer… 😱</button>
+    </div>
+
+    <!-- COMPTE À REBOURS + POÈME (fond noir) -->
+    <div id="countdownScreen" class="special-screen hidden">
+        <div id="countdownNumber" class="count-number"></div>
+        <div id="poemContainer" class="poem"></div>
+        <button id="restartBtnYes" class="btn-restart" style="display:none;">Rejouer ? ❤️</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
