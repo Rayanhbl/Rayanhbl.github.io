@@ -61,7 +61,7 @@ let keys = {
 
 /* ------------------------------
    Sorties (adaptatives)
------------------------------- */
+------------------------------ OUI CETTE PARTIE JAI FAIT AVEC CHAT GPT YA QUOI MTN ????*/
 const exitYesBase = { x: BASE_W - 90, y: BASE_H - 60, w: 74, h: 36, color: "#00E676", label: "OUI!!!!!" };
 const exitNoBase = { x: BASE_W - 90, y: 20, w: 74, h: 36, color: "#FF5252", label: "NON?" };
 let exitYes = { ...exitYesBase }, exitNo = { ...exitNoBase };
@@ -541,3 +541,4 @@ window.addEventListener('orientationchange', recomputeEverything);
     recomputeEverything(); 
 
 })();
+
