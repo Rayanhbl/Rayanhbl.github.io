@@ -1,23 +1,10 @@
-/****************************************************
- * Pac‑Man Saint‑Valentin — Rayan & Yasmine
- * Version complète (responsive, net, fond via CSS)
- * - Intro → lance nobodynew
- * - OUI : Burst de cœurs → [3,2,1] → Poème + Loving Machine
- * - NON : Screamer vidéo 0216.mp4
- * - Trail de cœurs pendant les déplacements
- * - Scroll bloqué, ZQSD/Flèches, focus canvas
- * - Pas de bouton "Rejouer" à la fin du poème
- ****************************************************/
 
-/* ------------------------------
-   Sélecteurs & éléments DOM
------------------------------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const audioToggleBtn = document.getElementById("audioToggle");
-const bgMusic = document.getElementById("bg-music");     // nobodynew
-const yesMusic = document.getElementById("yes-music");   // Loving Machine
+const bgMusic = document.getElementById("bg-music");    
+const yesMusic = document.getElementById("yes-music");   
 
 const introOverlay = document.getElementById("introOverlay");
 
@@ -31,9 +18,6 @@ const poemContainer = document.getElementById("poemContainer");
 
 const containerDiv = document.querySelector(".container");
 
-/* ------------------------------
-   Base logique & responsive
------------------------------- */
 const BASE_W = 500;
 const BASE_H = 400;
 
@@ -60,9 +44,6 @@ function setCanvasSizeToViewport() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-/* ------------------------------
-   Joueur & paramètres adaptatifs
------------------------------- */
 const playerBase = { x: 24, y: 24, r: 9, color: "#FFD54F", speed: 2.0 };
 const player = { ...playerBase };
 
@@ -98,9 +79,7 @@ function adaptExits() {
     };
 }
 
-/* ------------------------------
-   Labyrinthe SOLVABLE (zigzag), scalable
------------------------------- */
+
 const T_BASE = 8;
 const zigzagDefs = [
     { y: 64, openOn: 'left' },
@@ -126,13 +105,13 @@ function buildWalls() {
     const gapRightExtra = 80 * scaleX;
 
     const w = [];
-    // Bordures
+
     w.push({ x: 0, y: 0, w: W, h: T });
     w.push({ x: 0, y: H - T, w: W, h: T });
     w.push({ x: 0, y: 0, w: T, h: H });
     w.push({ x: W - T, y: 0, w: T, h: H });
 
-    // Zigzag horizontal
+ 
     zigzagDefs.forEach(def => {
         const y = def.y * scaleY;
         const wider = def.widerRight ? gapRightExtra : gap;
@@ -144,7 +123,7 @@ function buildWalls() {
         }
     });
 
-    // Poteaux (anti-raccourcis)
+
     postsBase.forEach(p => {
         w.push({ x: p.x * scaleX, y: p.y * scaleY, w: p.w * Math.min(scaleX, scaleY), h: p.h * scaleY });
     });
@@ -152,9 +131,6 @@ function buildWalls() {
     walls = w;
 }
 
-/* ------------------------------
-   Poème (ligne par ligne)
------------------------------- */
 const poemLines = [
     "Rayan est timide",
     "il garde ses mots au fond du cœur",
@@ -176,16 +152,14 @@ const poemLines = [
 ];
 const PER_LINE_MS = 3500;
 
-/* ------------------------------
-   Particules de cœurs (trail + burst)
------------------------------- */
+
 const HEART_COLOR = "#ff6b9f";
-const HEART_TRAIL_RATE = 0.018;   // cœurs / px parcouru (trail)
-const HEART_BASE_SIZE = 8;        // taille de base (scalée)
-const HEART_LIFE = 1000;          // ms
+const HEART_TRAIL_RATE = 0.018; 
+const HEART_BASE_SIZE = 8;        
+const HEART_LIFE = 1000;         
 let hearts = [];
-let lastPos = null;               // dernière position joueur pour le trail
-let yesTransitionAt = null;       // timestamp pour lancer la séquence YES après le burst (~450ms)
+let lastPos = null;               
+let yesTransitionAt = null;       
 
 function spawnHeart(x, y, vx, vy, size, life) {
     hearts.push({
@@ -238,9 +212,9 @@ function spawnYesBurst() {
 }
 
 function updateHearts(dtFrames) {
-    // dtFrames ≈ multiplicateur vs 60fps (1 = 60fps)
+   
     const now = performance.now();
-    const g = 0.01 * dtFrames; // légère gravité
+    const g = 0.01 * dtFrames; 
     hearts.forEach(h => {
         h.vy += g;
         h.x += h.vx * dtFrames;
@@ -258,7 +232,7 @@ function drawHearts() {
     const now = performance.now();
 
     hearts.forEach(h => {
-        const t = (now - h.born) / h.life; // 0 → 1
+        const t = (now - h.born) / h.life;
         const alpha = 1 - t;
         const scale = 0.9 + 0.2 * (1 - t);
 
@@ -283,16 +257,12 @@ function drawHearts() {
     ctx.restore();
 }
 
-/* ------------------------------
-   État & boucles
------------------------------- */
+
 let running = false;
 let rafId = null;
 let lastFrame = null;
 
-/* ------------------------------
-   Utilitaires de rendu & collision
------------------------------- */
+
 function rect(x, y, w, h, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, w, h);
@@ -319,31 +289,26 @@ function intersectsCircleRect(cx, cy, cr, rx, ry, rw, rh) {
     return (distX * distX + distY * distY) <= cr * cr;
 }
 
-/* ------------------------------
-   Dessin
------------------------------- */
+
 function draw() {
-    // fond du canvas (le "vrai" fond est en CSS body)
+ 
     const g = ctx.createLinearGradient(0, 0, W, H);
     g.addColorStop(0, "#16121f");
     g.addColorStop(1, "#0e0b14");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    // murs
+  
     walls.forEach(w => rect(w.x, w.y, w.w, w.h, "#3b2d6b"));
 
-    // sorties
+  
     drawLabelBox(exitYes, "#07210F");
     drawLabelBox(exitNo, "#2B0707");
 
-    // joueur
+    
     circle(player.x, player.y, player.r, player.color);
 }
 
-/* ------------------------------
-   Déplacements & collisions
------------------------------- */
 function update(dtFrames) {
     let vx = 0, vy = 0;
     if (keys.ArrowUp || keys.z) vy -= player.speed;
@@ -360,9 +325,9 @@ function update(dtFrames) {
         player.y = nextY;
     }
 
-    // Détection des sorties
+
     if (!yesTransitionAt && intersectsCircleRect(player.x, player.y, player.r, exitYes.x, exitYes.y, exitYes.w, exitYes.h)) {
-        // Explosion de cœurs puis transition YES différée (~450ms)
+      
         spawnYesBurst();
         yesTransitionAt = performance.now() + 450;
     } else if (intersectsCircleRect(player.x, player.y, player.r, exitNo.x, exitNo.y, exitNo.w, exitNo.h)) {
@@ -370,19 +335,16 @@ function update(dtFrames) {
         return;
     }
 
-    // Trail de cœurs si on bouge
+
     if (vx !== 0 || vy !== 0) emitTrail();
     else lastPos = { x: player.x, y: player.y };
 }
 
-/* ------------------------------
-   Boucle (dtFrames)
------------------------------- */
 function loop(ts) {
     if (!running) return;
 
     if (lastFrame == null) lastFrame = ts;
-    // dtFrames ~ multiplicateur vs 60fps (clamp pour éviter les gros sauts)
+
     const dt = Math.max(0.5, Math.min(2.0, (ts - lastFrame) / 16.6667));
     lastFrame = ts;
 
@@ -391,20 +353,17 @@ function loop(ts) {
     updateHearts(dt);
     drawHearts();
 
-    // Laisser voir le burst avant de lancer la séquence YES
+    
     if (yesTransitionAt && performance.now() >= yesTransitionAt) {
         yesTransitionAt = null;
-        lastPos = null;   // évite un trail direct à la reprise
+        lastPos = null;  
         triggerYesSequence();
-        return;           // la séquence YES stoppe le jeu
-    }
+        return;          
 
     rafId = requestAnimationFrame(loop);
 }
 
-/* ------------------------------
-   YES : [3,2,1] + poème + Loving Machine
------------------------------- */
+
 function triggerYesSequence() {
     stopGameLoop();
 
@@ -416,11 +375,11 @@ function triggerYesSequence() {
     poemContainer.style.display = "none";
     countdownNumber.textContent = "3";
 
-    // Nettoyage particules
+ 
     hearts = [];
     lastPos = null;
 
-    // Musique
+    
     safePause(bgMusic);
 
     let count = 3;
@@ -448,17 +407,13 @@ function showPoemLines() {
             index++;
             setTimeout(displayNextLine, PER_LINE_MS);
         } else {
-            // Pas de bouton Rejouer ici (fin du poème)
-            // Tu peux stopper la musique si tu veux :
-            // safePause(yesMusic);
+          
         }
     }
     displayNextLine();
 }
 
-/* ------------------------------
-   NON : screamer vidéo 0216.mp4
------------------------------- */
+
 function triggerNoSequence() {
     stopGameLoop();
 
@@ -467,7 +422,6 @@ function triggerNoSequence() {
     screamerScreen.classList.remove("hidden");
     restartBtn.style.display = "none";
 
-    // Nettoyage particules
     hearts = [];
     lastPos = null;
 
@@ -483,9 +437,7 @@ screamerVideo.addEventListener("ended", () => {
     restartBtn.style.display = "inline-block";
 });
 
-/* ------------------------------
-   Audio utils
------------------------------- */
+
 function safePlay(mediaEl) {
     if (!mediaEl) return;
     const p = mediaEl.play();
@@ -497,16 +449,13 @@ function safePause(mediaEl) {
     try { mediaEl.currentTime = 0; } catch (e) { }
 }
 
-/* ------------------------------
-   Rejouer (depuis le screamer)
------------------------------- */
+
 function resetGameState() {
-    adaptPlayer();      // remet la position/taille selon l’échelle actuelle
+    adaptPlayer();     
     containerDiv.style.display = "block";
     screamerScreen.classList.add("hidden");
     countdownScreen.classList.add("hidden");
 
-    // Reset particules
     hearts = [];
     lastPos = null;
 
@@ -522,9 +471,7 @@ function resetGameState() {
 }
 restartBtn.addEventListener("click", resetGameState);
 
-/* ------------------------------
-   Entrées clavier + blocage du scroll
------------------------------- */
+
 window.addEventListener("keydown", (e) => {
     if (e.key in keys) keys[e.key] = true;
     const k = e.key.toLowerCase();
@@ -539,22 +486,18 @@ window.addEventListener("keyup", (e) => {
 const SCROLL_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "PageUp", "PageDown", "Home", "End"]);
 window.addEventListener("keydown", (e) => { if (SCROLL_KEYS.has(e.key)) e.preventDefault(); }, { passive: false });
 
-/* ------------------------------
-   Écran d'accueil
------------------------------- */
+
 function enterExperience() {
     introOverlay.classList.add("hidden");
     containerDiv.style.display = "block";
-    safePlay(bgMusic);                       // nobodynew
+    safePlay(bgMusic);                       
     audioToggleBtn.textContent = "Couper musique (cruelle si tu fais ça Yasmine)";
     startGameLoop();
     canvas.focus();
 }
 introOverlay.addEventListener("click", enterExperience);
 
-/* ------------------------------
-   Toggle musique de fond
------------------------------- */
+
 audioToggleBtn.addEventListener("click", () => {
     if (bgMusic.paused) {
         safePlay(bgMusic);
@@ -565,12 +508,10 @@ audioToggleBtn.addEventListener("click", () => {
     }
 });
 
-/* ------------------------------
-   Démarrage / Arrêt boucle
------------------------------- */
+
 function startGameLoop() {
     running = true;
-    lastFrame = null; // reset pour un dt propre
+    lastFrame = null; 
     if (!rafId) rafId = requestAnimationFrame(loop);
 }
 function stopGameLoop() {
@@ -581,26 +522,22 @@ function stopGameLoop() {
     }
 }
 
-/* ------------------------------
-   Resize → recalcul complet
------------------------------- */
+
 function recomputeEverything() {
     setCanvasSizeToViewport();
     adaptPlayer();
     adaptExits();
     buildWalls();
-    hearts = [];   // reset particules à la taille
+    hearts = [];  
     lastPos = null;
     draw();
 }
 window.addEventListener('resize', recomputeEverything);
 window.addEventListener('orientationchange', recomputeEverything);
 
-/* ------------------------------
-   Init
------------------------------- */
+
 (function init() {
     if (!canvas.hasAttribute("tabindex")) canvas.setAttribute("tabindex", "0");
-    recomputeEverything(); // fixe tailles, murs, etc.
-    // On attend le clic (écran d’accueil) pour démarrer boucle et musique
+    recomputeEverything(); 
+
 })();
